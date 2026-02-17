@@ -1,36 +1,40 @@
-# Copyright (c) 2025 Clear Creek Scientific
-#
-# Based on adafruit's circuit python-bme280 code (pip install adafruit-circuitpython-bme280)
-#
-# The MIT License (MIT)
-#
-# Copyright (c) 2017 ladyada for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#         
+'''
+Copyright (c) 2026 Clear Creek Scientific
 
+Based on adafruit's circuit python-bme280 code 
+(pip install adafruit-circuitpython-bme280)
+
+The MIT License (MIT)
+
+Copyright (c) 2017 ladyada for Adafruit Industries
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+         
+'''
 
 import struct
 import traceback
 from time import sleep
 from smbus2 import SMBus
+import xml.etree.ElementTree as et
 
+TAG_ADDRESS      = 'address'
 
 REG_DIG_T1       = 0x88
 REG_DIG_H1       = 0xa1
@@ -87,10 +91,11 @@ class Bme280(object):
         self.reset()
         self.read_calibration()
         self.setup_control_registers()
-        self.write_config()
+        self.write_bme280_config()
         self.last_humidity = 0.0
         self.last_pressure = 0.0
         self.last_temperature = 0.0
+        self.log_callback = None
 
     def write_byte(self,reg,val):
         return self.bus.write_byte_data(self.addr,reg,val)
@@ -123,13 +128,13 @@ class Bme280(object):
         self.mode = val
         self.setup_control_registers()
 
-    def set_config(self):
+    def set_bme280_config(self):
         config = 0
         if self.mode == MODE_NORMAL:
             config += self.standby << 5
         if self.iir_filter:
             config += self.iir_filter << 2
-        self.config = config
+        self.bme280_config = config
 
     def setup_control_registers(self):
         """
@@ -141,13 +146,13 @@ class Bme280(object):
         self.set_ctrl_meas()
         self.write_byte(REG_CTRL_MEAS,self.ctrl_meas)
 
-    def write_config(self):
+    def write_bme280_config(self):
         normal_flag = False
         if MODE_NORMAL == self.mode:
             # Writes to the config register may be ignored while in Normal mode
             normal_flag = True
             self.set_mode(MODE_SLEEP)
-        self.set_config()
+        self.set_bme280_config()
         self.write_byte(REG_CONFIG,self.config)
         if normal_flag:
             self.mode = NORMAL_MODE
@@ -289,6 +294,18 @@ class Bme280(object):
         pressure = (CCS_AIR_PRESSURE_UUID,'{:.{}f}'.format(ap,2))
         return (temperature,humidity,pressure)
 
+    def set_config(self,xml):
+        try:
+            root = et.fromstring(xml)
+            addr = root.find(TAG_ADDRESS)
+            if None is not addr:
+                self.addr = int(addr.text.strip(),16)
+        except Exception as ex:
+            self.logmsg('Error parsing config: ' + str(ex))
+
+    def set_log_callback(self,callback):
+    def set_log_callback(self,callback):
+        self.log_callback = callback
 
 def load():
     return Bme280()
