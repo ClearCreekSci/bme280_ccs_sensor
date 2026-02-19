@@ -28,6 +28,7 @@ SOFTWARE.
          
 '''
 
+import ccs_base
 import struct
 import traceback
 from time import sleep
@@ -58,11 +59,6 @@ MODE_SLEEP       = 0x00
 MODE_FORCE       = 0x01
 MODE_NORMAL      = 0x03
 VALID_MODES      = (MODE_SLEEP,MODE_FORCE,MODE_NORMAL)
-
-
-CCS_AIR_TEMPERATURE_UUID            = 'a0ce0210-3bbf-11ee-89eb-00e04c400cc5'
-CCS_HUMIDITY_UUID                   = 'a0ce0211-3bbf-11ee-89eb-00e04c400cc5'
-CCS_AIR_PRESSURE_UUID               = 'a0ce0212-3bbf-11ee-89eb-00e04c400cc5'
 
 # standby time constant values
 # TC_X[_Y] where x is milliseconds and y is tenths of milliseconds
@@ -153,7 +149,7 @@ class Bme280(object):
             normal_flag = True
             self.set_mode(MODE_SLEEP)
         self.set_bme280_config()
-        self.write_byte(REG_CONFIG,self.config)
+        self.write_byte(REG_CONFIG,self.bme280_config)
         if normal_flag:
             self.mode = NORMAL_MODE
 
@@ -281,17 +277,17 @@ class Bme280(object):
         return 'temperature, humidity, and air pressure'
 
     def get_uuids(self):
-        return (CCS_AIR_TEMPERATURE_UUID,CCS_HUMIDITY_UUID,CCS_AIR_PRESSURE_UUID)
+        return (ccs_base.CCS_AIR_TEMPERATURE_UUID,ccs_base.CCS_HUMIDITY_UUID,ccs_base.CCS_AIR_PRESSURE_UUID)
 
     # Returns a tuple of tuples, each containing the uuid of the value 
     # and the value itself expressed as a string representing a floating point number
     def get_current_values(self):
         tc = self.get_temperature()
-        temperature = (CCS_AIR_TEMPERATURE_UUID,'{:.{}f}'.format(tc,2))
+        temperature = (ccs_base.CCS_AIR_TEMPERATURE_UUID,'{:.{}f}'.format(tc,2))
         rh = self.get_humidity()
-        humidity = (CCS_HUMIDITY_UUID,'{:.{}f}'.format(rh,2))
+        humidity = (ccs_base.CCS_HUMIDITY_UUID,'{:.{}f}'.format(rh,2))
         ap = self.get_pressure()
-        pressure = (CCS_AIR_PRESSURE_UUID,'{:.{}f}'.format(ap,2))
+        pressure = (ccs_base.CCS_AIR_PRESSURE_UUID,'{:.{}f}'.format(ap,2))
         return (temperature,humidity,pressure)
 
     def set_config(self,xml):
@@ -303,7 +299,6 @@ class Bme280(object):
         except Exception as ex:
             self.logmsg('Error parsing config: ' + str(ex))
 
-    def set_log_callback(self,callback):
     def set_log_callback(self,callback):
         self.log_callback = callback
 
