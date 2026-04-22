@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ccs-ui>
+    <types>
+        <struct>
+            <ns>bme280</ns>
+            <name>sensor-config</name>
+            <desc>bme280-specific configuration</desc>
+	    <member>
+                <name>address</name>
+		<type>byte</type>
+                <desc>I2C address (hexadecimal byte)</desc>
+                <default>77</default>
+            </member>
+        </struct>
+	<struct>
+            <ns>bme280</ns>
+	    <name>sensor</name>
+	    <inheritance>
+                <super>logger:sensor</super>
+	    </inheritance>
+	    <desc>bme280 sensor type</desc>
+	    <member>
+                <!-- This name is conventional. It tells the logger settings parser to -->
+                <!-- pass the child elements to the sensor's parser -->
+                <name>sensor-config</name>
+                <type>bme280:sensor-config</type>
+	    </member>
+        </struct>
+    </types>
+    <ui>
+        <object>
+            <type>bme280:sensor</type>
+        </object>
+    </ui>
+</ccs-ui>
+
