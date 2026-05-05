@@ -29,6 +29,7 @@
     </types>
     <ui>
         <object>
+            <name>temperature_sensor</name>
             <type>bme280:sensor</type>
         </object>
     </ui>
