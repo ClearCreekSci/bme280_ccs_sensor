@@ -30,7 +30,11 @@
     <ui>
         <object>
             <name>temperature_sensor</name>
-            <type>bme280:sensor</type>
+	    <type>bme280:sensor</type>
+	    <defaults>
+                <period>30</period>
+                <rollover-count>48</rollover-count>
+            </defaults>
         </object>
     </ui>
 </ccs-ui>
