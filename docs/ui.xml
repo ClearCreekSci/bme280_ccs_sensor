@@ -28,7 +28,7 @@
     </types>
     <ui>
         <object>
-            <name>temperature_sensor</name>
+            <name>bme280</name>
 	    <type>bme280:sensor</type>
 	    <defaults>
                 <address>77</address>
