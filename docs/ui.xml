@@ -31,5 +31,7 @@
             </defaults>
         </struct>
     </types>
+    <ui>
+    </ui>
 </ccs-ui>
 
