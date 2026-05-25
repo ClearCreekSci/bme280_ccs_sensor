@@ -24,18 +24,12 @@
                 <name>sensor-config</name>
                 <type>bme280:sensor-config</type>
 	    </member>
-        </struct>
-    </types>
-    <ui>
-        <object>
-            <name>bme280</name>
-	    <type>bme280:sensor</type>
-	    <defaults>
+            <defaults>
                 <address>77</address>
                 <period>30</period>
                 <rollover-count>48</rollover-count>
             </defaults>
-        </object>
-    </ui>
+        </struct>
+    </types>
 </ccs-ui>
 
