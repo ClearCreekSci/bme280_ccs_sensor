@@ -93,6 +93,10 @@ class Bme280(object):
         self.last_temperature = 0.0
         self.log_callback = None
 
+    def logmsg(self,msg):
+        if None is not self.log_callback:
+            self.log_callback(NAME,msg)
+
     def write_byte(self,reg,val):
         return self.bus.write_byte_data(self.addr,reg,val)
 
